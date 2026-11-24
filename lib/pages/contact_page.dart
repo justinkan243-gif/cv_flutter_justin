@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/app_theme.dart';
+
+const _lieu = 'Goma, Nord-Kivu, RDC';
+const _github = 'https://github.com/justinkan243-gif';
+const _email = 'contact@bealive-media.local';
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
@@ -22,106 +27,197 @@ class _ContactPageState extends State<ContactPage> {
     super.dispose();
   }
 
-  void _copier(String texte, String label) {
-    Clipboard.setData(ClipboardData(text: texte));
+  Future<void> _copier(String texte, String label) async {
+    await Clipboard.setData(ClipboardData(text: texte));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$label copié dans le presse-papiers')),
+      SnackBar(content: Text('$label copié dans le presse-papiers.')),
     );
   }
 
   void _envoyer() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Message prêt pour ${_nomCtrl.text.trim()}')),
-      );
-      _nomCtrl.clear();
-      _emailCtrl.clear();
-      _messageCtrl.clear();
-    }
+    if (!_formKey.currentState!.validate()) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Merci ${_nomCtrl.text.trim()}, votre message est prêt.'),
+      ),
+    );
+    _nomCtrl.clear();
+    _emailCtrl.clear();
+    _messageCtrl.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Card(
-          elevation: 2,
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.location_on, color: Colors.indigo),
-                title: const Text('Localisation'),
-                subtitle: const Text('Goma, Nord-Kivu, RDC'),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.code, color: Colors.indigo),
-                title: const Text('GitHub'),
-                subtitle: const Text('github.com/justinkan243-gif'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () => _copier('https://github.com/justinkan243-gif', 'Lien GitHub'),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Contact')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _Section(
+            titre: 'Coordonnées',
+            child: Column(
+              children: [
+                const _Coordonnee(
+                  icone: Icons.place_outlined,
+                  libelle: 'Localisation',
+                  valeur: _lieu,
                 ),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.email, color: Colors.indigo),
-                title: const Text('Email'),
-                subtitle: const Text('contact@bealive-media.local'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () => _copier('contact@bealive-media.local', 'Email'),
+                const Divider(height: 24),
+                _Coordonnee(
+                  icone: Icons.code,
+                  libelle: 'GitHub',
+                  valeur: _github,
+                  onCopier: () => _copier(_github, 'Lien GitHub'),
                 ),
-              ),
-            ],
+                const Divider(height: 24),
+                _Coordonnee(
+                  icone: Icons.mail_outline,
+                  libelle: 'Email',
+                  valeur: _email,
+                  onCopier: () => _copier(_email, 'Email'),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+          _Section(
+            titre: 'Envoyer un message',
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Envoyer un message',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.indigo),
-                  ),
-                  const SizedBox(height: 12),
                   TextFormField(
                     controller: _nomCtrl,
-                    decoration: const InputDecoration(labelText: 'Votre nom', border: OutlineInputBorder()),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Entrez votre nom' : null,
+                    decoration: const InputDecoration(
+                      labelText: 'Nom',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Saisissez votre nom.' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Votre email', border: OutlineInputBorder()),
-                    validator: (v) => (v == null || !v.contains('@')) ? 'Email invalide' : null,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.mail_outline),
+                    ),
+                    validator: (v) =>
+                        (v == null || !v.contains('@')) ? 'Saisissez un email valide.' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _messageCtrl,
-                    maxLines: 3,
-                    decoration: const InputDecoration(labelText: 'Message', border: OutlineInputBorder()),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Écrivez un message' : null,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      labelText: 'Message',
+                      alignLabelWithHint: true,
+                    ),
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Écrivez votre message.' : null,
                   ),
-                  const SizedBox(height: 14),
-                  FilledButton.icon(
+                  const SizedBox(height: 20),
+                  ElevatedButton(
                     onPressed: _envoyer,
-                    icon: const Icon(Icons.send),
-                    label: const Text('Envoyer'),
+                    child: const Text('Envoyer'),
                   ),
                 ],
               ),
             ),
           ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Widgets internes ----------
+
+class _Section extends StatelessWidget {
+  final String titre;
+  final Widget child;
+
+  const _Section({required this.titre, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            titre.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Coordonnee extends StatelessWidget {
+  final IconData icone;
+  final String libelle;
+  final String valeur;
+  final VoidCallback? onCopier;
+
+  const _Coordonnee({
+    required this.icone,
+    required this.libelle,
+    required this.valeur,
+    this.onCopier,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CircleAvatar(
+          backgroundColor: const Color(0xFFE6EBEF),
+          foregroundColor: AppColors.primary,
+          child: Icon(icone, size: 20),
         ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                libelle,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                valeur,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+        if (onCopier != null)
+          IconButton(
+            tooltip: 'Copier',
+            icon: const Icon(Icons.copy_outlined, size: 20),
+            color: AppColors.textMuted,
+            onPressed: onCopier,
+          ),
       ],
     );
   }

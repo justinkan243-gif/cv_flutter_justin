@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pages/login_page.dart';
+import 'theme/app_theme.dart';
 
-void main() {
-  runApp(const CvFlutterApp());
-}
+void main() => runApp(const CvFlutterApp());
 
 class CvFlutterApp extends StatelessWidget {
   const CvFlutterApp({super.key});
@@ -13,10 +12,7 @@ class CvFlutterApp extends StatelessWidget {
     return MaterialApp(
       title: 'CV Flutter',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.indigo,
-        useMaterial3: true,
-      ),
+      theme: buildAppTheme(),
       home: const LoginPage(),
     );
   }
